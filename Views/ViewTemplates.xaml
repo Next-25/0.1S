@@ -1,0 +1,35 @@
+﻿<ResourceDictionary
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:views="clr-namespace:_01S.Views"
+  xmlns:vm="clr-namespace:_01S.ViewModels"
+>
+  <!--  Связывание View и ViewModel без сторонних библиотек  -->
+  <DataTemplate DataType="{x:Type vm:HomeViewModel}">
+    <views:HomeView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type vm:ProductsViewModel}">
+    <views:ProductsView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type vm:AddProductViewModel}">
+    <views:AddProductView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type vm:EditProductViewModel}">
+    <views:EditProductView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type vm:DocumentsViewModel}">
+    <views:DocumentsView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type vm:AddDocumentViewModel}">
+    <views:AddDocumentView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type vm:EditDocumentViewModel}">
+    <views:EditDocumentView />
+  </DataTemplate>
+</ResourceDictionary>

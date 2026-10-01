@@ -37,7 +37,7 @@
 
         <!--  Привязка коллекции к DataGrid  -->
         <DataGrid
-            x:Name="ProdutsList"
+            x:Name="DocumentsList"
             Grid.Row="1"
             AutoGenerateColumns="False"
             GridLinesVisibility="Horizontal"
@@ -47,11 +47,12 @@
             <DataGrid.Columns>
                 <DataGridTextColumn
                     Width="Auto"
-                    MinWidth="60"
-                    Binding="{Binding Id}"
-                    Header="ID" />
+                    MinWidth="160"
+                    Binding="{Binding Number}"
+                    Header="Номер" />
                 <DataGridTextColumn
                     Width="Auto"
+                    MinWidth="160"
                     Binding="{Binding Date}"
                     Header="Дата" />
                 <DataGridTextColumn

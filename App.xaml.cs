@@ -35,8 +35,7 @@ namespace _01S
                         services.AddTransient<AddProductViewModel>();
                         services.AddTransient<EditProductViewModel>();
                         services.AddTransient<DocumentsViewModel>();
-                        services.AddTransient<AddDocumentViewModel>();
-                        services.AddTransient<EditDocumentViewModel>();
+                        services.AddTransient<DocumentDetailsViewModel>();
 
                         // 4. Окна
                         services.AddSingleton<MainWindow>();

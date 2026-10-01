@@ -25,11 +25,7 @@
     <views:DocumentsView />
   </DataTemplate>
 
-  <DataTemplate DataType="{x:Type vm:AddDocumentViewModel}">
-    <views:AddDocumentView />
-  </DataTemplate>
-
-  <DataTemplate DataType="{x:Type vm:EditDocumentViewModel}">
-    <views:EditDocumentView />
+  <DataTemplate DataType="{x:Type vm:DocumentDetailsViewModel}">
+    <views:DocumentDetailsView />
   </DataTemplate>
 </ResourceDictionary>

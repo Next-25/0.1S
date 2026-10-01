@@ -49,12 +49,18 @@ namespace _01S.ViewModels
         }
 
         [RelayCommand]
-        private void NavigateAddDocument() => _navigationService.NavigateTo<AddDocumentViewModel>();
+        private void NavigateCreateDocument()
+        {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+            _navigationService.NavigateTo<DocumentDetailsViewModel, Document>(null);
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+        }
 
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteDocument))]
         private void NavigateEditDocument()
         {
-            _navigationService.NavigateTo<EditDocumentViewModel, Document>(SelectedDocument!);
+            // Передаем существующий объект
+            _navigationService.NavigateTo<DocumentDetailsViewModel, Document>(SelectedDocument!);
         }
 
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteDocument))]

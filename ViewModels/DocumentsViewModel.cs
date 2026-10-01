@@ -1,10 +1,10 @@
-﻿using System.Collections.ObjectModel;
-using _01S.Data;
+﻿using _01S.Data;
 using _01S.Model;
 using _01S.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
 
 namespace _01S.ViewModels
 {
@@ -51,9 +51,7 @@ namespace _01S.ViewModels
         [RelayCommand]
         private void NavigateCreateDocument()
         {
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-            _navigationService.NavigateTo<DocumentDetailsViewModel, Document>(null);
-#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+            _navigationService.NavigateTo<DocumentDetailsViewModel, Document?>(null);
         }
 
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteDocument))]

@@ -1,0 +1,54 @@
+﻿<UserControl
+    x:Class="_01S.Views.ProductDetailsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="clr-namespace:_01S.ViewModels"
+    d:DataContext="{d:DesignInstance Type=viewmodels:ProductDetailsViewModel}"
+    d:DesignHeight="300"
+    d:DesignWidth="500"
+    mc:Ignorable="d">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock
+            Grid.Row="0"
+            Margin="0,0,0,16"
+            FontSize="20"
+            FontWeight="Bold"
+            Text="{Binding Title}" />
+
+        <StackPanel Grid.Row="1" Margin="0,0,0,12">
+            <TextBlock Margin="0,0,0,4" Text="Наименование" />
+            <TextBox Text="{Binding EditableProduct.Name, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Margin="0,0,0,20">
+            <TextBlock Margin="0,0,0,4" Text="Цена" />
+            <TextBox Text="{Binding EditableProduct.Price, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N2}}" />
+        </StackPanel>
+
+        <StackPanel
+            Grid.Row="3"
+            HorizontalAlignment="Left"
+            Orientation="Horizontal">
+            <Button
+                Margin="0,0,8,0"
+                Padding="12,6"
+                Command="{Binding SaveCommand}"
+                Content="Сохранить"
+                IsDefault="True" />
+            <Button
+                Padding="12,6"
+                Command="{Binding CancelCommand}"
+                Content="Отмена"
+                IsCancel="True" />
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,10 +1,10 @@
-﻿using System.Collections.ObjectModel;
-using _01S.Data;
+﻿using _01S.Data;
 using _01S.Model;
 using _01S.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
 
 namespace _01S.ViewModels
 {
@@ -45,18 +45,43 @@ namespace _01S.ViewModels
         }
 
         [RelayCommand]
-        private void NavigateAddProduct() => _navigationService.NavigateTo<AddProductViewModel>();
+        private void NavigateCreateProduct()
+        {
+            _navigationService.NavigateTo<ProductDetailsViewModel, Product?>(null);
+        }
 
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteProduct))]
         private void NavigateEditProduct()
         {
-            _navigationService.NavigateTo<EditProductViewModel, Product>(SelectedProduct!);
+            if (SelectedProduct is null) return;
+            _navigationService.NavigateTo<ProductDetailsViewModel, Product>(SelectedProduct);
         }
 
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteProduct))]
         private async Task DeleteProduct()
         {
-            await _dbContext.Products.Where(p => p.Id == SelectedProduct!.Id).ExecuteDeleteAsync();
+            if (SelectedProduct is null) return;
+
+            // 1. Проверяем, ссылается ли хоть одна строка документа на этот товар
+            bool isUsedInDocuments = await _dbContext.DocumentLines
+                .AnyAsync(l => l.ProductId == SelectedProduct.Id);
+
+            if (isUsedInDocuments)
+            {
+                // Покажем пользователю плашку/MessageBox
+                System.Windows.MessageBox.Show(
+                    $"Невозможно удалить товар \"{SelectedProduct.Name}\", так как он используется в документах!",
+                    "Ошибка удаления",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning
+                );
+                return;
+            }
+
+            // 2. Если связей нет — безопасно удаляем
+            await _dbContext.Products
+                .Where(p => p.Id == SelectedProduct.Id)
+                .ExecuteDeleteAsync();
 
             LoadProducts();
         }

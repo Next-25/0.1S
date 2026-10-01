@@ -1,12 +1,12 @@
-﻿using System.Globalization;
-using System.Windows;
-using System.Windows.Markup;
-using _01S.Data;
+﻿using _01S.Data;
 using _01S.Services;
 using _01S.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Markup;
 
 namespace _01S
 {
@@ -30,10 +30,12 @@ namespace _01S
 
                         // 3. ViewModels
                         services.AddSingleton<MainViewModel>();
+
                         services.AddTransient<HomeViewModel>();
+
                         services.AddTransient<ProductsViewModel>();
-                        services.AddTransient<AddProductViewModel>();
-                        services.AddTransient<EditProductViewModel>();
+                        services.AddTransient<ProductDetailsViewModel>();
+
                         services.AddTransient<DocumentsViewModel>();
                         services.AddTransient<DocumentDetailsViewModel>();
 

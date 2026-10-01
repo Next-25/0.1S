@@ -1,10 +1,10 @@
-﻿using System.Collections.ObjectModel;
-using _01S.Data;
+﻿using _01S.Data;
 using _01S.Model;
 using _01S.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
 
 namespace _01S.ViewModels
 {
@@ -26,7 +26,7 @@ namespace _01S.ViewModels
 
         // Заголовок окна в зависимости от режима
         public string Title =>
-            IsNew ? "Новый документ" : $"Редактирование документа №{EditableDocument.Number}";
+            IsNew ? "Новый документ Поступления" : $"Редактирование документа №{EditableDocument.Number}";
 
         [ObservableProperty]
         public partial Document EditableDocument { get; set; } = new();

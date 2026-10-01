@@ -19,7 +19,7 @@ namespace _01S.ViewModels
         [ObservableProperty]
         public partial Document? SelectedDocument { get; set; }
 
-        public static string Title => "Документы";
+        public static string Title => "Документы Поступления";
 
         public DocumentsViewModel(
             ApplicationDbContext dbContext,

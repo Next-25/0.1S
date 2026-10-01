@@ -12,6 +12,7 @@ namespace _01S.ViewModels
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly INavigationService _navigationService;
+        private readonly IStockService _stockService;
 
         // Идентификатор редактируемого документа (0 если новый)
         private int _documentId;
@@ -46,11 +47,13 @@ namespace _01S.ViewModels
 
         public DocumentDetailsViewModel(
             ApplicationDbContext context,
-            INavigationService navigationService
+            INavigationService navigationService,
+            IStockService stockService
         )
         {
             _dbContext = context;
             _navigationService = navigationService;
+            _stockService = stockService;
 
             LoadProducts();
         }
@@ -66,7 +69,7 @@ namespace _01S.ViewModels
                 EditableDocument = new Document
                 {
                     Date = DateTime.Now,
-                    Number = $"ДОК-{DateTime.Now:MMddHHmm}" // например, генерация номера
+                    Number = $"ДОК-{DateTime.Now:MMddHHmm}", // например, генерация номера
                 };
             }
             else
@@ -126,41 +129,45 @@ namespace _01S.ViewModels
         [RelayCommand]
         public async Task Save()
         {
-            if (
-                string.IsNullOrWhiteSpace(EditableDocument.Customer)
-                || string.IsNullOrWhiteSpace(EditableDocument.Number)
-            )
+            if (string.IsNullOrWhiteSpace(EditableDocument.Customer) ||
+                string.IsNullOrWhiteSpace(EditableDocument.Number))
                 return;
+
+            // Фиксируем список ID товаров, которые фигурируют в этом документе
+            var affectedProductIds = EditableDocument.Lines
+                    .Select(l => l.ProductId)                    
+                    .Distinct()
+                    .ToList();
 
             if (IsNew)
             {
-                // Логика СОХРАНЕНИЯ НОВОГО ДОКУМЕНТА
                 foreach (var line in EditableDocument.Lines)
                 {
-                    line.Product = null; // Избавляемся от tracking конфликтов
+                    line.Product = null;
                 }
 
                 _dbContext.Documents.Add(EditableDocument);
             }
             else
             {
-                // Логика ОБНОВЛЕНИЯ СУЩЕСТВУЮЩЕГО (наш дифф алгоритм)
-                var dbDocument = await _dbContext
-                    .Documents.Include(d => d.Lines)
+                var dbDocument = await _dbContext.Documents
+                    .Include(d => d.Lines)
                     .FirstOrDefaultAsync(d => d.Id == _documentId);
 
-                if (dbDocument is null)
-                    return;
+                if (dbDocument is null) return;
+
+                // Также добавляем товары, которые БЫЛИ в документе до редактирования
+                affectedProductIds.AddRange(dbDocument.Lines.Select(l => l.ProductId));
+                affectedProductIds = [.. affectedProductIds.Distinct()];
 
                 dbDocument.Number = EditableDocument.Number;
                 dbDocument.Date = EditableDocument.Date;
                 dbDocument.Customer = EditableDocument.Customer;
+                dbDocument.Type = EditableDocument.Type;
 
                 // Удаляем убранные строки
-                var linesToRemove = dbDocument
-                    .Lines.Where(dbLine =>
-                        !EditableDocument.Lines.Any(eLine => eLine.Id == dbLine.Id && eLine.Id != 0)
-                    )
+                var linesToRemove = dbDocument.Lines
+                    .Where(dbLine => !EditableDocument.Lines.Any(eLine => eLine.Id == dbLine.Id && eLine.Id != 0))
                     .ToList();
 
                 foreach (var line in linesToRemove)
@@ -168,19 +175,17 @@ namespace _01S.ViewModels
                     _dbContext.DocumentLines.Remove(line);
                 }
 
-                // Добавляем новые и обновляем существующие
+                // Обновляем / Добавляем строки
                 foreach (var editLine in EditableDocument.Lines)
                 {
                     if (editLine.Id == 0)
                     {
-                        dbDocument.Lines.Add(
-                            new DocumentLine
-                            {
-                                ProductId = editLine.ProductId,
-                                Price = editLine.Price,
-                                Quantity = editLine.Quantity,
-                            }
-                        );
+                        dbDocument.Lines.Add(new DocumentLine
+                        {
+                            ProductId = editLine.ProductId,
+                            Price = editLine.Price,
+                            Quantity = editLine.Quantity,
+                        });
                     }
                     else
                     {
@@ -196,8 +201,16 @@ namespace _01S.ViewModels
             }
 
             await _dbContext.SaveChangesAsync();
+
+            // Пересчитываем остатки для всех затронутых товаров
+            foreach (var productId in affectedProductIds)
+            {
+                await _stockService.RecalculateProductStockAsync(productId);
+            }
+
             _navigationService.NavigateTo<DocumentsViewModel>();
         }
+
 
         [RelayCommand]
         public void Cancel()

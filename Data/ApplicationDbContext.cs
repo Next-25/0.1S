@@ -9,26 +9,29 @@ namespace _01S.Data
         public DbSet<Product> Products => Set<Product>();
         public DbSet<Document> Documents => Set<Document>();
         public DbSet<DocumentLine> DocumentLines => Set<DocumentLine>();
+        public DbSet<Stock> Stocks => Set<Stock>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Настройка связи Document -> DocumentLines (Один-ко-многим)
-            modelBuilder
-                .Entity<Document>()
+            // Двусторонняя связь Document <-> DocumentLine
+            modelBuilder.Entity<Document>()
                 .HasMany(d => d.Lines)
-                .WithOne()
+                .WithOne(l => l.Document) // Указываем обратное навигационное свойство!
                 .HasForeignKey(l => l.DocumentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Настройка связи DocumentLine -> Product (Многие-к-одному)
-            modelBuilder
-                .Entity<DocumentLine>()
+            // Настройка связи DocumentLine -> Product
+            modelBuilder.Entity<DocumentLine>()
                 .HasOne(l => l.Product)
                 .WithMany()
                 .HasForeignKey(l => l.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Stock>()
+                .HasIndex(s => s.ProductId)
+                .IsUnique();
         }
     }
 }

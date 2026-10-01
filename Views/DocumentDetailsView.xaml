@@ -58,7 +58,7 @@
                 <DatePicker SelectedDate="{Binding EditableDocument.Date, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <StackPanel Margin="8,0,0,0">
-                <TextBlock Margin="0,0,0,4" Text="Клиент" />
+                <TextBlock Margin="0,0,0,4" Text="Контрагент" />
                 <TextBox Text="{Binding EditableDocument.Customer, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
         </UniformGrid>

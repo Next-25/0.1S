@@ -12,7 +12,8 @@ namespace _01S.ViewModels
     {
         private readonly INavigationService _navigationService;
         private readonly ApplicationDbContext _dbContext;
-
+        private readonly IStockService _stockService;
+            
         // Коллекция, к которой будет привязываться View
         public ObservableCollection<Document> Documents { get; } = [];
 
@@ -23,11 +24,13 @@ namespace _01S.ViewModels
 
         public DocumentsViewModel(
             ApplicationDbContext dbContext,
-            INavigationService navigationService
+            INavigationService navigationService,
+            IStockService stockService
         )
         {
             _dbContext = dbContext;
             _navigationService = navigationService;
+            _stockService = stockService;
 
             // Загружаем документы из БД при создании ViewModel
             LoadDocuments();
@@ -64,9 +67,23 @@ namespace _01S.ViewModels
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteDocument))]
         private async Task DeleteDocument()
         {
-            await _dbContext
-                .Documents.Where(p => p.Id == SelectedDocument!.Id)
+            if (SelectedDocument is null) return;
+
+            // Запоминаем товары из удаляемого документа
+            var productIds = SelectedDocument.Lines
+                .Select(l => l.ProductId)
+                .Distinct()
+                .ToList();
+
+            await _dbContext.Documents
+                .Where(p => p.Id == SelectedDocument.Id)
                 .ExecuteDeleteAsync();
+
+            // Пересчитываем остатки
+            foreach (var productId in productIds)
+            {
+                await _stockService.RecalculateProductStockAsync(productId);
+            }
 
             LoadDocuments();
         }

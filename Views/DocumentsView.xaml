@@ -58,7 +58,7 @@
                 <DataGridTextColumn
                     Width="*"
                     Binding="{Binding Customer}"
-                    Header="Клиент" />
+                    Header="Контрагент" />
                 <DataGridTextColumn
                     Width="*"
                     Binding="{Binding SumOfDocument}"

@@ -14,10 +14,12 @@ namespace _01S.ViewModels
         private readonly ApplicationDbContext _dbContext;
 
         // Коллекция, к которой будет привязываться View
-        public ObservableCollection<Product> Products { get; } = [];
+        public ObservableCollection<ProductWithStock> Products { get; } = [];
 
         [ObservableProperty]
-        public partial Product? SelectedProduct { get; set; }
+        [NotifyCanExecuteChangedFor(nameof(NavigateEditProductCommand))]
+        [NotifyCanExecuteChangedFor(nameof(DeleteProductCommand))]
+        public partial ProductWithStock? SelectedProduct { get; set; }
 
         public static string Title => "Товары";
 
@@ -35,7 +37,14 @@ namespace _01S.ViewModels
 
         private void LoadProducts()
         {
-            var items = _dbContext.Products.AsNoTracking().ToList();
+            var items = (from p in _dbContext.Products.AsNoTracking()
+                         join s in _dbContext.Stocks.AsNoTracking() on p.Id equals s.ProductId into stockGroup
+                         from stock in stockGroup.DefaultIfEmpty()
+                         select new ProductWithStock
+                         {
+                             Product = p,
+                             StockQuantity = stock != null ? stock.Quantity : 0
+                         }).ToList();
 
             Products.Clear();
             foreach (var item in items)
@@ -50,11 +59,14 @@ namespace _01S.ViewModels
             _navigationService.NavigateTo<ProductDetailsViewModel, Product?>(null);
         }
 
+        private bool CanEditOrDeleteProduct() => SelectedProduct is not null;
+
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteProduct))]
         private void NavigateEditProduct()
         {
             if (SelectedProduct is null) return;
-            _navigationService.NavigateTo<ProductDetailsViewModel, Product>(SelectedProduct);
+            // Передаем внутренний объект Product в окно редактирования
+            _navigationService.NavigateTo<ProductDetailsViewModel, Product>(SelectedProduct.Product);
         }
 
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteProduct))]
@@ -62,15 +74,15 @@ namespace _01S.ViewModels
         {
             if (SelectedProduct is null) return;
 
-            // 1. Проверяем, ссылается ли хоть одна строка документа на этот товар
+            var productId = SelectedProduct.Product.Id;
+
             bool isUsedInDocuments = await _dbContext.DocumentLines
-                .AnyAsync(l => l.ProductId == SelectedProduct.Id);
+                .AnyAsync(l => l.ProductId == productId);
 
             if (isUsedInDocuments)
             {
-                // Покажем пользователю плашку/MessageBox
                 System.Windows.MessageBox.Show(
-                    $"Невозможно удалить товар \"{SelectedProduct.Name}\", так как он используется в документах!",
+                    $"Невозможно удалить товар \"{SelectedProduct.Product.Name}\", так как он используется в документах!",
                     "Ошибка удаления",
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Warning
@@ -78,21 +90,12 @@ namespace _01S.ViewModels
                 return;
             }
 
-            // 2. Если связей нет — безопасно удаляем
             await _dbContext.Products
-                .Where(p => p.Id == SelectedProduct.Id)
+                .Where(p => p.Id == productId)
                 .ExecuteDeleteAsync();
 
             LoadProducts();
         }
 
-        private bool CanEditOrDeleteProduct() => SelectedProduct is not null;
-
-        // При изменении SelectedProduct уведомляем команды:
-        partial void OnSelectedProductChanged(Product? value)
-        {
-            NavigateEditProductCommand.NotifyCanExecuteChanged();
-            DeleteProductCommand.NotifyCanExecuteChanged();
-        }
     }
 }

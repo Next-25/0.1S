@@ -1,11 +1,18 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace _01S.Model
 {
+    public enum DocumentType
+    {
+        Receipt = 0, //Поступление
+        Sale = 1 //Продажа
+
+    }
+
     public partial class Document : ObservableObject
     {
         [Key]
@@ -20,7 +27,10 @@ namespace _01S.Model
         [ObservableProperty]
         public partial string Customer { get; set; } = string.Empty;
 
-        public ObservableCollection<DocumentLine> Lines { get; } = [];
+        // Тип документа
+        public DocumentType Type { get; set; } = DocumentType.Receipt;
+
+        public ObservableCollection<DocumentLine> Lines { get; set; } = [];
 
         public decimal SumOfDocument => Lines.Sum(l => l.Sum);
 
@@ -41,15 +51,23 @@ namespace _01S.Model
         {
             var clone = new Document
             {
-                Id = this.Id,
-                Number = this.Number,
-                Date = this.Date,
-                Customer = this.Customer,
+                Id = Id,
+                Number = Number,
+                Date = Date,
+                Customer = Customer,
+                Type = Type
             };
 
-            foreach (var line in this.Lines)
+            foreach (var line in Lines)
             {
-                clone.Lines.Add(line.Clone());
+                clone.Lines.Add(new DocumentLine
+                {
+                    Id = line.Id,
+                    ProductId = line.ProductId,
+                    Product = line.Product,
+                    Price = line.Price,
+                    Quantity = line.Quantity
+                });
             }
 
             return clone;
@@ -92,10 +110,13 @@ namespace _01S.Model
 
         public int DocumentId { get; set; }
 
-        public int? ProductId { get; set; }
+        [ObservableProperty]
+        public partial Document? Document { get; set; }
+
+        public int ProductId { get; set; }
 
         [ObservableProperty]
-        public partial Product? Product { get; set; }
+        public partial Product Product { get; set; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Sum))]
@@ -105,29 +126,13 @@ namespace _01S.Model
         [NotifyPropertyChangedFor(nameof(Sum))]
         public partial decimal Price { get; set; }
 
-        public decimal Sum => Quantity * Price;
+        public decimal Sum => Quantity * Price;       
 
-        public void SelectProduct(Product product)
-        {
-            Product = product;
-            ProductId = product.Id;
-            Price = product.Price;
-        }
-
-        /// <summary>
-        /// Клонирует строку документа, сохраняя первичные ключи для EF Core.
-        /// </summary>
-        public DocumentLine Clone()
-        {
-            return new DocumentLine
-            {
-                Id = this.Id,
-                DocumentId = this.DocumentId,
-                ProductId = this.ProductId,
-                Product = this.Product, // Ссылка на товар из справочника
-                Quantity = this.Quantity,
-                Price = this.Price,
-            };
-        }
+        //public void SelectProduct(Product product)
+        //{
+        //    Product = product;
+        //    ProductId = product.Id;
+        //    Price = product.Price;
+        //}
     }
 }

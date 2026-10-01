@@ -27,6 +27,7 @@ namespace _01S
 
                         // 2. Сервисы
                         services.AddSingleton<INavigationService, NavigationService>();
+                        services.AddSingleton<IStockService, StockService>();
 
                         // 3. ViewModels
                         services.AddSingleton<MainViewModel>();

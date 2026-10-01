@@ -47,17 +47,22 @@
                 <DataGridTextColumn
                     Width="Auto"
                     MinWidth="60"
-                    Binding="{Binding Id}"
+                    Binding="{Binding Product.Id}"
                     Header="ID" />
                 <DataGridTextColumn
                     Width="*"
-                    Binding="{Binding Name}"
+                    Binding="{Binding Product.Name}"
                     Header="Наименование" />
                 <DataGridTextColumn
                     Width="Auto"
                     MinWidth="120"
-                    Binding="{Binding Price, StringFormat='{}{0:C}'}"
+                    Binding="{Binding Product.Price, StringFormat='{}{0:C}'}"
                     Header="Цена" />
+                <DataGridTextColumn
+                    Width="120"
+                    Binding="{Binding StockQuantity, StringFormat=0.##}"
+                    Header="Остаток"
+                    IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

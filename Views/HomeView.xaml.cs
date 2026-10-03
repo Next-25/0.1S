@@ -3,10 +3,13 @@
 namespace _01S.Views
 {
     /// <summary>
-    /// Interaction logic for HomeView.xaml
+    /// Представление главной страницы.
     /// </summary>
     public partial class HomeView : UserControl
     {
+        /// <summary>
+        /// Инициализирует представление главной страницы.
+        /// </summary>
         public HomeView()
         {
             InitializeComponent();

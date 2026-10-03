@@ -36,7 +36,6 @@
 
         <!--  Привязка коллекции к DataGrid  -->
         <DataGrid
-            x:Name="ProdutsList"
             Grid.Row="1"
             AutoGenerateColumns="False"
             GridLinesVisibility="Horizontal"

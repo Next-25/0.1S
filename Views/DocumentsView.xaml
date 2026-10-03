@@ -37,7 +37,6 @@
 
         <!--  Привязка коллекции к DataGrid  -->
         <DataGrid
-            x:Name="DocumentsList"
             Grid.Row="1"
             AutoGenerateColumns="False"
             GridLinesVisibility="Horizontal"

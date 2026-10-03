@@ -1,16 +1,15 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace _01S.Model
 {
     public enum DocumentType
     {
         Receipt = 0, //Поступление
-        Sale = 1 //Продажа
-
+        Sale = 1, //Продажа
     }
 
     public partial class Document : ObservableObject
@@ -34,11 +33,17 @@ namespace _01S.Model
 
         public decimal SumOfDocument => Lines.Sum(l => l.Sum);
 
+        /// <summary>
+        /// Создаёт документ и подписывается на изменения его строк.
+        /// </summary>
         public Document()
         {
             AttachCollectionEvents();
         }
 
+        /// <summary>
+        /// Подписывается на изменения коллекции строк документа.
+        /// </summary>
         private void AttachCollectionEvents()
         {
             Lines.CollectionChanged += OnLinesCollectionChanged;
@@ -47,6 +52,7 @@ namespace _01S.Model
         /// <summary>
         /// Выполняет глубокое клонирование документа и всех его строк.
         /// </summary>
+        /// <returns>Копия документа с копиями его строк.</returns>
         public Document Clone()
         {
             var clone = new Document
@@ -55,24 +61,31 @@ namespace _01S.Model
                 Number = Number,
                 Date = Date,
                 Customer = Customer,
-                Type = Type
+                Type = Type,
             };
 
             foreach (var line in Lines)
             {
-                clone.Lines.Add(new DocumentLine
-                {
-                    Id = line.Id,
-                    ProductId = line.ProductId,
-                    Product = line.Product,
-                    Price = line.Price,
-                    Quantity = line.Quantity
-                });
+                clone.Lines.Add(
+                    new DocumentLine
+                    {
+                        Id = line.Id,
+                        ProductId = line.ProductId,
+                        Product = line.Product,
+                        Price = line.Price,
+                        Quantity = line.Quantity,
+                    }
+                );
             }
 
             return clone;
         }
 
+        /// <summary>
+        /// Обновляет подписки на строки и уведомляет об изменении суммы документа.
+        /// </summary>
+        /// <param name="sender">Коллекция, в которой изменились строки.</param>
+        /// <param name="e">Описание добавленных и удалённых элементов.</param>
         private void OnLinesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.NewItems != null)
@@ -94,6 +107,11 @@ namespace _01S.Model
             OnPropertyChanged(nameof(SumOfDocument));
         }
 
+        /// <summary>
+        /// Уведомляет об изменении суммы документа при изменении суммы строки.
+        /// </summary>
+        /// <param name="sender">Изменённая строка документа.</param>
+        /// <param name="e">Описание изменившегося свойства строки.</param>
         private void OnLinePropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(DocumentLine.Sum))
@@ -126,13 +144,6 @@ namespace _01S.Model
         [NotifyPropertyChangedFor(nameof(Sum))]
         public partial decimal Price { get; set; }
 
-        public decimal Sum => Quantity * Price;       
-
-        //public void SelectProduct(Product product)
-        //{
-        //    Product = product;
-        //    ProductId = product.Id;
-        //    Price = product.Price;
-        //}
+        public decimal Sum => Quantity * Price;
     }
 }

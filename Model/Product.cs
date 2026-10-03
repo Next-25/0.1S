@@ -9,6 +9,10 @@ namespace _01S.Model
         public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }
 
+        /// <summary>
+        /// Создаёт копию товара.
+        /// </summary>
+        /// <returns>Новый экземпляр с текущими значениями свойств товара.</returns>
         public Product Clone() => (Product)this.MemberwiseClone();
     }
 }

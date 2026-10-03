@@ -22,6 +22,12 @@ namespace _01S.ViewModels
 
         public static string Title => "Документы Поступления";
 
+        /// <summary>
+        /// Создаёт модель списка документов и загружает данные из базы.
+        /// </summary>
+        /// <param name="dbContext">Контекст базы данных приложения.</param>
+        /// <param name="navigationService">Сервис навигации.</param>
+        /// <param name="stockService">Сервис пересчёта остатков товаров.</param>
         public DocumentsViewModel(
             ApplicationDbContext dbContext,
             INavigationService navigationService,
@@ -36,6 +42,9 @@ namespace _01S.ViewModels
             LoadDocuments();
         }
 
+        /// <summary>
+        /// Загружает документы вместе с их строками и товарами.
+        /// </summary>
         private void LoadDocuments()
         {
             var items = _dbContext
@@ -51,12 +60,18 @@ namespace _01S.ViewModels
             }
         }
 
+        /// <summary>
+        /// Открывает форму создания документа.
+        /// </summary>
         [RelayCommand]
         private void NavigateCreateDocument()
         {
             _navigationService.NavigateTo<DocumentDetailsViewModel, Document?>(null);
         }
 
+        /// <summary>
+        /// Открывает форму редактирования выбранного документа.
+        /// </summary>
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteDocument))]
         private void NavigateEditDocument()
         {
@@ -64,6 +79,9 @@ namespace _01S.ViewModels
             _navigationService.NavigateTo<DocumentDetailsViewModel, Document>(SelectedDocument!);
         }
 
+        /// <summary>
+        /// Удаляет выбранный документ и пересчитывает остатки затронутых товаров.
+        /// </summary>
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteDocument))]
         private async Task DeleteDocument()
         {
@@ -88,9 +106,16 @@ namespace _01S.ViewModels
             LoadDocuments();
         }
 
+        /// <summary>
+        /// Возвращает, можно ли редактировать или удалить выбранный документ.
+        /// </summary>
+        /// <returns><see langword="true"/>, если документ выбран.</returns>
         private bool CanEditOrDeleteDocument() => SelectedDocument is not null;
 
-        // При изменении SelectedProduct уведомляем команды:
+        /// <summary>
+        /// Обновляет доступность команд редактирования и удаления после смены выбора.
+        /// </summary>
+        /// <param name="value">Новый выбранный документ.</param>
         partial void OnSelectedDocumentChanged(Document? value)
         {
             NavigateEditDocumentCommand.NotifyCanExecuteChanged();

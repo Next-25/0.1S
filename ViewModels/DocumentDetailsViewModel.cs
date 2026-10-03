@@ -45,6 +45,12 @@ namespace _01S.ViewModels
         [NotifyCanExecuteChangedFor(nameof(RemoveLineCommand))]
         public partial DocumentLine? SelectedLine { get; set; }
 
+        /// <summary>
+        /// Создаёт модель формы документа и загружает доступные товары.
+        /// </summary>
+        /// <param name="context">Контекст базы данных приложения.</param>
+        /// <param name="navigationService">Сервис навигации.</param>
+        /// <param name="stockService">Сервис пересчёта остатков товаров.</param>
         public DocumentDetailsViewModel(
             ApplicationDbContext context,
             INavigationService navigationService,
@@ -58,7 +64,10 @@ namespace _01S.ViewModels
             LoadProducts();
         }
 
-        // Вызывается автоматически при навигации
+        /// <summary>
+        /// Подготавливает форму для создания документа или редактирования его копии.
+        /// </summary>
+        /// <param name="document">Документ для редактирования либо <see langword="null"/> для нового.</param>
         public void Initialize(Document? document)
         {
             if (document is null || document.Id == 0)
@@ -81,6 +90,9 @@ namespace _01S.ViewModels
             }
         }
 
+        /// <summary>
+        /// Загружает товары, доступные для добавления в документ.
+        /// </summary>
         private void LoadProducts()
         {
             var products = _dbContext.Products.AsNoTracking().ToList();
@@ -89,8 +101,15 @@ namespace _01S.ViewModels
                 AvailableProducts.Add(p);
         }
 
+        /// <summary>
+        /// Возвращает, можно ли добавить выбранный товар с заданным количеством.
+        /// </summary>
+        /// <returns><see langword="true"/>, если товар выбран и количество положительно.</returns>
         private bool CanAddLine() => SelectedProduct != null && Quantity > 0;
 
+        /// <summary>
+        /// Добавляет выбранный товар в документ или увеличивает количество существующей строки.
+        /// </summary>
         [RelayCommand(CanExecute = nameof(CanAddLine))]
         private void AddLine()
         {
@@ -121,11 +140,21 @@ namespace _01S.ViewModels
             Quantity = 1;
         }
 
+        /// <summary>
+        /// Возвращает, можно ли удалить выбранную строку документа.
+        /// </summary>
+        /// <returns><see langword="true"/>, если строка выбрана.</returns>
         private bool CanRemoveLine() => SelectedLine is not null;
 
+        /// <summary>
+        /// Удаляет выбранную строку документа.
+        /// </summary>
         [RelayCommand(CanExecute = nameof(CanRemoveLine))]
         private void RemoveLine() => EditableDocument.Lines.Remove(SelectedLine!);
 
+        /// <summary>
+        /// Проверяет и сохраняет документ, пересчитывает затронутые остатки и возвращается к списку.
+        /// </summary>
         [RelayCommand]
         public async Task Save()
         {
@@ -211,7 +240,9 @@ namespace _01S.ViewModels
             _navigationService.NavigateTo<DocumentsViewModel>();
         }
 
-
+        /// <summary>
+        /// Отменяет редактирование и возвращается к списку документов.
+        /// </summary>
         [RelayCommand]
         public void Cancel()
         {

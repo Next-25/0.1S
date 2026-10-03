@@ -14,6 +14,9 @@ namespace _01S
     {
         private readonly IHost _host;
 
+        /// <summary>
+        /// Создаёт приложение и настраивает внедрение зависимостей.
+        /// </summary>
         public App()
         {
             _host = Host.CreateDefaultBuilder()
@@ -47,6 +50,10 @@ namespace _01S
                 .Build();
         }
 
+        /// <summary>
+        /// Запускает хост, подготавливает базу данных и показывает главное окно.
+        /// </summary>
+        /// <param name="e">Аргументы запуска приложения.</param>
         protected override async void OnStartup(StartupEventArgs e)
         {
             await _host.StartAsync();
@@ -73,6 +80,10 @@ namespace _01S
             base.OnStartup(e);
         }
 
+        /// <summary>
+        /// Останавливает хост приложения перед завершением.
+        /// </summary>
+        /// <param name="e">Аргументы завершения приложения.</param>
         protected override async void OnExit(ExitEventArgs e)
         {
             using (_host)

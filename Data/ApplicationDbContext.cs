@@ -3,6 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace _01S.Data
 {
+    /// <summary>
+    /// Предоставляет доступ к сущностям и конфигурации базы данных приложения.
+    /// </summary>
+    /// <param name="options">Параметры конфигурации контекста.</param>
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : DbContext(options)
     {
@@ -11,27 +15,31 @@ namespace _01S.Data
         public DbSet<DocumentLine> DocumentLines => Set<DocumentLine>();
         public DbSet<Stock> Stocks => Set<Stock>();
 
+        /// <summary>
+        /// Настраивает связи и ограничения сущностей базы данных.
+        /// </summary>
+        /// <param name="modelBuilder">Построитель модели Entity Framework Core.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // Двусторонняя связь Document <-> DocumentLine
-            modelBuilder.Entity<Document>()
+            modelBuilder
+                .Entity<Document>()
                 .HasMany(d => d.Lines)
                 .WithOne(l => l.Document) // Указываем обратное навигационное свойство!
                 .HasForeignKey(l => l.DocumentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Настройка связи DocumentLine -> Product
-            modelBuilder.Entity<DocumentLine>()
+            modelBuilder
+                .Entity<DocumentLine>()
                 .HasOne(l => l.Product)
                 .WithMany()
                 .HasForeignKey(l => l.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Stock>()
-                .HasIndex(s => s.ProductId)
-                .IsUnique();
+            modelBuilder.Entity<Stock>().HasIndex(s => s.ProductId).IsUnique();
         }
     }
 }

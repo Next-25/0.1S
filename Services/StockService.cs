@@ -4,10 +4,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace _01S.Services
 {
+    /// <summary>
+    /// Пересчитывает складские остатки на основе документов поступления.
+    /// </summary>
+    /// <param name="dbContext">Контекст базы данных приложения.</param>
     public class StockService(ApplicationDbContext dbContext) : IStockService
     {
         private readonly ApplicationDbContext _dbContext = dbContext;
 
+        /// <summary>
+        /// Пересчитывает остаток товара по всем документам поступления и сохраняет результат.
+        /// </summary>
+        /// <param name="productId">Идентификатор товара.</param>
         public async Task RecalculateProductStockAsync(int productId)
         {
             // EF Core теперь корректно сгенерирует INNER JOIN по единственному DocumentId
@@ -33,18 +41,6 @@ namespace _01S.Services
             }
 
             await _dbContext.SaveChangesAsync();
-        }
-
-        public async Task RecalculateAllStocksAsync()
-        {
-            var products = await _dbContext.Products
-                .Select(p => p.Id)
-                .ToListAsync();
-
-            foreach (var productId in products)
-            {
-                await RecalculateProductStockAsync(productId);
-            }
         }
     }
 }

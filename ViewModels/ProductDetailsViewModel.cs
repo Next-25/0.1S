@@ -25,6 +25,11 @@ namespace _01S.ViewModels
         [ObservableProperty]
         public partial Product EditableProduct { get; set; } = new();
 
+        /// <summary>
+        /// Создаёт модель формы товара.
+        /// </summary>
+        /// <param name="context">Контекст базы данных приложения.</param>
+        /// <param name="navigationService">Сервис навигации.</param>
         public ProductDetailsViewModel(
             ApplicationDbContext context,
             INavigationService navigationService
@@ -34,6 +39,10 @@ namespace _01S.ViewModels
             _navigationService = navigationService;
         }
 
+        /// <summary>
+        /// Подготавливает форму для создания товара или редактирования его копии.
+        /// </summary>
+        /// <param name="product">Товар для редактирования либо <see langword="null"/> для нового.</param>
         public void Initialize(Product? product)
         {
             if (product is null || product.Id == 0)
@@ -52,6 +61,9 @@ namespace _01S.ViewModels
             }
         }
 
+        /// <summary>
+        /// Проверяет и сохраняет товар, затем возвращается к списку товаров.
+        /// </summary>
         [RelayCommand]
         public async Task Save()
         {
@@ -75,6 +87,9 @@ namespace _01S.ViewModels
             _navigationService.NavigateTo<ProductsViewModel>();
         }
 
+        /// <summary>
+        /// Отменяет редактирование и возвращается к списку товаров.
+        /// </summary>
         [RelayCommand]
         public void Cancel()
         {

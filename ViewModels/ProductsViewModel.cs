@@ -23,6 +23,11 @@ namespace _01S.ViewModels
 
         public static string Title => "Товары";
 
+        /// <summary>
+        /// Создаёт модель списка товаров и загружает данные из базы.
+        /// </summary>
+        /// <param name="dbContext">Контекст базы данных приложения.</param>
+        /// <param name="navigationService">Сервис навигации.</param>
         public ProductsViewModel(
             ApplicationDbContext dbContext,
             INavigationService navigationService
@@ -35,6 +40,9 @@ namespace _01S.ViewModels
             LoadProducts();
         }
 
+        /// <summary>
+        /// Загружает товары и их остатки из базы данных.
+        /// </summary>
         private void LoadProducts()
         {
             var items = (from p in _dbContext.Products.AsNoTracking()
@@ -53,14 +61,24 @@ namespace _01S.ViewModels
             }
         }
 
+        /// <summary>
+        /// Открывает форму создания товара.
+        /// </summary>
         [RelayCommand]
         private void NavigateCreateProduct()
         {
             _navigationService.NavigateTo<ProductDetailsViewModel, Product?>(null);
         }
 
+        /// <summary>
+        /// Возвращает, можно ли редактировать или удалить выбранный товар.
+        /// </summary>
+        /// <returns><see langword="true"/>, если товар выбран.</returns>
         private bool CanEditOrDeleteProduct() => SelectedProduct is not null;
 
+        /// <summary>
+        /// Открывает форму редактирования выбранного товара.
+        /// </summary>
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteProduct))]
         private void NavigateEditProduct()
         {
@@ -69,6 +87,9 @@ namespace _01S.ViewModels
             _navigationService.NavigateTo<ProductDetailsViewModel, Product>(SelectedProduct.Product);
         }
 
+        /// <summary>
+        /// Удаляет выбранный товар, если он не используется в документах.
+        /// </summary>
         [RelayCommand(CanExecute = nameof(CanEditOrDeleteProduct))]
         private async Task DeleteProduct()
         {
